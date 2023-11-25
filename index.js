@@ -8,6 +8,7 @@ import startServer from "./function/startServer.js";
 import AppRoutes from "./routes/appRoutes.js";
 import ProductRoutes from "./routes/productRoutes.js";
 import ReportRoutes from "./routes/reportRoutes.js";
+import "./socket.io/client.js";
 dotenv.config();
 
 const app = express();
