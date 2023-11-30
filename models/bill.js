@@ -24,6 +24,7 @@ const billSchema = new Schema({
   },
   totalPay: { type: Number },
   IsOnline: { type: Boolean, default: false },
+  amount: { type: Number },
 });
 
 const Bill = model("Bill", billSchema);

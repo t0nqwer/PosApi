@@ -394,8 +394,27 @@ export const DeleteBill = async (req, res) => {
 export const CreateBill = async (req, res) => {
   try {
     const newbill = await createBill();
-    console.log(newbill);
-    res.json(newbill);
+    const findBill = await Bill.find({
+      active: "active",
+    });
+    const findBillwithdata = findBill.map(async (bill) => {
+      const products = bill.products.map(async (product) => {
+        const productdata = await Product.findOne({ _id: product.barcode });
+        return {
+          ...productdata._doc,
+          barcode: product.barcode,
+          qty: product.qty,
+        };
+      });
+      const productwithdata = await Promise.all(products);
+      return {
+        ...bill._doc,
+        products: productwithdata,
+      };
+    });
+    const billwithdata = await Promise.all(findBillwithdata);
+
+    res.json({ list: billwithdata, current: newbill });
   } catch (error) {
     res.json(error.message);
   }
