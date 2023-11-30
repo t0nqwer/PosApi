@@ -61,15 +61,21 @@ export const AddProduct = async (req, res) => {
         }
       );
       if (NewBill) {
-        const active = await Bill.findOne({ _id: bill._id }).populate(
-          "products"
-        );
-        return res.json(active);
+        const active = await Bill.findOne({ _id: bill._id });
+        const products = active.products.map(async (product) => {
+          const productdata = await Product.findOne({ _id: product.barcode });
+          return {
+            ...productdata._doc,
+            barcode: product.barcode,
+            qty: product.qty,
+          };
+        });
+        const productwithdata = await Promise.all(products);
+
+        return res.json({ ...active._doc, products: productwithdata });
       }
     }
-    const currentBill = await Bill.findOne({ name: billName }).sort({
-      date: -1,
-    });
+    const currentBill = await Bill.findOne({ name: billName });
     const inputProduct = {
       barcode: barcode,
       qty: 1,
@@ -83,10 +89,17 @@ export const AddProduct = async (req, res) => {
       }
     );
     if (updatebill) {
-      const active = await Bill.findOne({ _id: currentBill._id }).populate(
-        "products"
-      );
-      res.json(active);
+      const active = await Bill.findOne({ _id: currentBill._id });
+      const products = active.products.map(async (product) => {
+        const productdata = await Product.findOne({ _id: product.barcode });
+        return {
+          ...productdata._doc,
+          barcode: product.barcode,
+          qty: product.qty,
+        };
+      });
+      const productwithdata = await Promise.all(products);
+      return res.json({ ...active._doc, products: productwithdata });
     }
   } catch (error) {
     console.log(error.message);
@@ -121,6 +134,92 @@ export const GetCurrentProductList = async (req, res) => {
     res.json(error.message);
   }
 };
+export const AddCustomProduct = async (req, res) => {
+  const { billName, name, price, qty } = req.body;
+  try {
+    console.log(billName, name, price, qty);
+    const CustomProduct = {
+      name: name,
+      qty: 1,
+      price: price,
+    };
+    if (billName === "" || !billName) {
+      const bill = await createBill();
+
+      const NewBill = await Bill.updateOne(
+        {
+          _id: bill._id,
+        },
+
+        { $push: { customProducts: CustomProduct } }
+      );
+      if (NewBill) {
+        const active = await Bill.findOne({ _id: bill._id });
+        const products = active.products.map(async (product) => {
+          const productdata = await Product.findOne({ _id: product.barcode });
+          return {
+            ...productdata._doc,
+            barcode: product.barcode,
+            qty: product.qty,
+          };
+        });
+        const productwithdata = await Promise.all(products);
+
+        return res.json({ ...active._doc, products: productwithdata });
+      }
+    }
+    const currentBill = await Bill.findOne({ name: billName });
+    const updatebill = await Bill.updateOne(
+      { _id: currentBill._id },
+      { $push: { customProducts: CustomProduct } }
+    );
+    if (updatebill) {
+      const active = await Bill.findOne({ _id: currentBill._id });
+      const products = active.products.map(async (product) => {
+        const productdata = await Product.findOne({ _id: product.barcode });
+        return {
+          ...productdata._doc,
+          barcode: product.barcode,
+          qty: product.qty,
+        };
+      });
+      const productwithdata = await Promise.all(products);
+      return res.json({ ...active._doc, products: productwithdata });
+    }
+  } catch (error) {}
+};
+export const DeleteCustomProduct = async (req, res) => {
+  const { billName, name } = req.body;
+  try {
+    const currentBill = await Bill.findOne({ name: billName });
+    const products = currentBill.customProducts.filter(
+      (product) => product.name !== name
+    );
+    const updatebill = await Bill.updateOne(
+      { _id: currentBill._id },
+      {
+        $set: {
+          customProducts: products,
+        },
+      }
+    );
+    if (updatebill) {
+      const active = await Bill.findOne({ _id: currentBill._id });
+      const products = active.products.map(async (product) => {
+        const productdata = await Product.findOne({ _id: product.barcode });
+        return {
+          ...productdata._doc,
+          barcode: product.barcode,
+          qty: product.qty,
+        };
+      });
+      const productwithdata = await Promise.all(products);
+      return res.json({ ...active._doc, products: productwithdata });
+    }
+  } catch (error) {
+    res.json(error.message);
+  }
+};
 export const AddQty = async (req, res) => {
   const { billName, barcode } = req.body;
   try {
@@ -144,11 +243,17 @@ export const AddQty = async (req, res) => {
       }
     );
     if (updatebill) {
-      const active = await Bill.findOne({ _id: currentBill._id }).populate(
-        "products"
-      );
-
-      res.json(active);
+      const active = await Bill.findOne({ _id: currentBill._id });
+      const products = active.products.map(async (product) => {
+        const productdata = await Product.findOne({ _id: product.barcode });
+        return {
+          ...productdata._doc,
+          barcode: product.barcode,
+          qty: product.qty,
+        };
+      });
+      const productwithdata = await Promise.all(products);
+      return res.json({ ...active._doc, products: productwithdata });
     }
   } catch (error) {
     console.log(error.message);
@@ -158,7 +263,6 @@ export const AddQty = async (req, res) => {
 export const DecreseQty = async (req, res) => {
   const { billName, barcode, pull } = req.body;
   try {
-    console.log(billName, barcode);
     const currentBill = await Bill.findOne({ name: billName });
     const products = currentBill.products
       .map((product) => {
@@ -181,11 +285,17 @@ export const DecreseQty = async (req, res) => {
       }
     );
     if (updatebill) {
-      const active = await Bill.findOne({ _id: currentBill._id }).populate(
-        "products"
-      );
-      console.log(active.products);
-      res.json(active);
+      const active = await Bill.findOne({ _id: currentBill._id });
+      const products = active.products.map(async (product) => {
+        const productdata = await Product.findOne({ _id: product.barcode });
+        return {
+          ...productdata._doc,
+          barcode: product.barcode,
+          qty: product.qty,
+        };
+      });
+      const productwithdata = await Promise.all(products);
+      return res.json({ ...active._doc, products: productwithdata });
     }
   } catch (error) {
     console.log(error.message);
@@ -195,7 +305,6 @@ export const DecreseQty = async (req, res) => {
 export const DeleteProduct = async (req, res) => {
   const { billName, barcode } = req.body;
   try {
-    console.log(billName, barcode);
     const currentBill = await Bill.findOne({ name: billName });
     const products = currentBill.products.filter(
       (product) => product.barcode !== barcode
@@ -209,14 +318,19 @@ export const DeleteProduct = async (req, res) => {
       }
     );
     if (updatebill) {
-      const active = await Bill.findOne({ _id: currentBill._id }).populate(
-        "products"
-      );
-      console.log(active.products);
-      res.json(active);
+      const active = await Bill.findOne({ _id: currentBill._id });
+      const products = active.products.map(async (product) => {
+        const productdata = await Product.findOne({ _id: product.barcode });
+        return {
+          ...productdata._doc,
+          barcode: product.barcode,
+          qty: product.qty,
+        };
+      });
+      const productwithdata = await Promise.all(products);
+      return res.json({ ...active._doc, products: productwithdata });
     }
   } catch (error) {
-    console.log(error.message);
     res.json(error.message);
   }
 };
@@ -225,14 +339,28 @@ export const GetBillList = async (req, res) => {
     const findBill = await Bill.find({
       active: "active",
     });
+    const findBillwithdata = findBill.map(async (bill) => {
+      const products = bill.products.map(async (product) => {
+        const productdata = await Product.findOne({ _id: product.barcode });
+        return {
+          ...productdata._doc,
+          barcode: product.barcode,
+          qty: product.qty,
+        };
+      });
+      const productwithdata = await Promise.all(products);
+      return {
+        ...bill._doc,
+        products: productwithdata,
+      };
+    });
+    const billwithdata = await Promise.all(findBillwithdata);
 
-    res.json(findBill);
+    res.json(billwithdata);
   } catch (error) {
-    console.log(error.message);
     res.json(error.message);
   }
 };
-
 export const DeleteBill = async (req, res) => {
   const { id } = req.params;
   try {
@@ -241,10 +369,25 @@ export const DeleteBill = async (req, res) => {
       const newlist = await Bill.find({
         active: "active",
       });
-      return res.json(newlist);
+      const findBillwithdata = newlist.map(async (bill) => {
+        const products = bill.products.map(async (product) => {
+          const productdata = await Product.findOne({ _id: product.barcode });
+          return {
+            ...productdata._doc,
+            barcode: product.barcode,
+            qty: product.qty,
+          };
+        });
+        const productwithdata = await Promise.all(products);
+        return {
+          ...bill._doc,
+          products: productwithdata,
+        };
+      });
+      const billwithdata = await Promise.all(findBillwithdata);
+      return res.json(billwithdata);
     }
   } catch (error) {
-    console.log(error.message);
     res.json(error.message);
   }
 };
@@ -267,7 +410,16 @@ export const SetDiscount = async (req, res) => {
     );
     if (updatebill) {
       const active = await Bill.findOne({ _id: currentBill._id });
-      res.json(active);
+      const products = active.products.map(async (product) => {
+        const productdata = await Product.findOne({ _id: product.barcode });
+        return {
+          ...productdata._doc,
+          barcode: product.barcode,
+          qty: product.qty,
+        };
+      });
+      const productwithdata = await Promise.all(products);
+      return res.json({ ...active._doc, products: productwithdata });
     }
   } catch (error) {
     console.log(error.message);
@@ -298,6 +450,41 @@ export const SetBill = async (req, res) => {
         active: "active",
       });
       res.json(findBill);
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.json(error.message);
+  }
+};
+export const FinishBill = async (req, res) => {
+  const { billName, type, totalBfDiscount, totalPay, cash, change } = req.body;
+  console.log(billName, type, totalBfDiscount, totalPay, cash, change);
+  try {
+    const updatebill = await Bill.updateOne(
+      { name: billName },
+      {
+        payment: type,
+        totalBfDiscount,
+        active: "purchase",
+        totalPay,
+        cash,
+        change,
+      }
+    );
+    if (updatebill) {
+      try {
+        const { data } = await axios.post(
+          `${process.env.URL}/Bill`,
+          updatebill
+        );
+        await Bill.updateOne({ name: billName }, { IsOnline: true });
+        const Billw = await Bill.findOne({ name: billName });
+        res.json(Billw);
+      } catch (error) {
+        const Billw = await Bill.findOne({ name: billName });
+        console.log(Billw);
+        res.json(Billw);
+      }
     }
   } catch (error) {
     console.log(error.message);

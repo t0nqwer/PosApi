@@ -2,7 +2,8 @@ import Bill from "../models/bill.js";
 import moment from "moment-timezone";
 function makeid(length) {
   let result = "";
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const charactersLength = characters.length;
   let counter = 0;
   while (counter < length) {
@@ -19,17 +20,13 @@ export const createBill = async () => {
     now.getMonth(),
     now.getDate()
   );
-  console.log(moment().tz("Asia/Bangkok").format("YYMMDD"));
-  console.log(now);
+
   let id;
   for (let i = 0; i <= 0; i++) {
-    const generateId = makeid(3);
-    id = `${moment().tz("Asia/Bangkok").format("YYMMDD")}${generateId}`;
-    console.log(id);
+    const generateId = makeid(4);
+    id = `${generateId}`;
     const checkid = await Bill.findOne({ name: id });
-    console.log(checkid, "checkid");
     if (!checkid) break;
-    console.log("id is exist");
   }
   console.log(id);
   const newBill = new Bill({

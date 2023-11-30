@@ -9,7 +9,7 @@ const billSchema = new Schema({
     type: String,
     enum: ["cash", "credit", "transfer"],
   },
-  total: { type: Number, default: 0 },
+  totalBfDiscount: { type: Number, default: 0 },
   cash: { type: Number, default: 0 },
   change: { type: Number, default: 0 },
   active: {
@@ -22,7 +22,8 @@ const billSchema = new Schema({
     type: String,
     enum: ["percent", "int"],
   },
-  amount: { type: Number },
+  totalPay: { type: Number },
+  IsOnline: { type: Boolean, default: false },
 });
 
 const Bill = model("Bill", billSchema);
