@@ -27,7 +27,7 @@ export const StoreList = async (req, res) => {
 
 export const selectStore = async (req, res) => {
   const { name } = req.body;
-  console.log(process.env.SERVER_URL);
+  console.log(process.env.URL);
 
   try {
     const app = await AppSettings.findOneAndUpdate(
