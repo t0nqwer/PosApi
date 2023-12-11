@@ -9,6 +9,7 @@ import AppRoutes from "./routes/appRoutes.js";
 import ProductRoutes from "./routes/productRoutes.js";
 import ReportRoutes from "./routes/reportRoutes.js";
 import "./socket.io/client.js";
+import Summary from "./function/Summary.js";
 dotenv.config();
 
 const app = express();
@@ -23,6 +24,7 @@ app.use("/product", ProductRoutes);
 app.use("/report", ReportRoutes);
 connectToDatabase();
 startServer();
+Summary(500);
 const port = parseInt(process.env.PORT) || 9900;
 app.listen(port, () => {
   console.log(`helloworld: listening on http://localhost:${port}`);

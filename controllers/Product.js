@@ -1,6 +1,7 @@
 import Product from "../models/product.js";
 import Bill from "../models/bill.js";
 import { createBill } from "../function/createBill.js";
+import Pos from "../models/pos.js";
 export const ListProduct = async (req, res) => {
   const { search } = req.query;
   try {
@@ -385,6 +386,7 @@ export const DeleteBill = async (req, res) => {
         };
       });
       const billwithdata = await Promise.all(findBillwithdata);
+
       return res.json(billwithdata);
     }
   } catch (error) {
@@ -413,6 +415,9 @@ export const CreateBill = async (req, res) => {
       };
     });
     const billwithdata = await Promise.all(findBillwithdata);
+    const pos = await Pos.findOne({ status: "open" });
+    const posBill = pos.bills ? [...pos.bills, newbill.name] : [newbill.name];
+    await Pos.updateOne({ _id: pos._id }, { bills: posBill });
 
     res.json({ list: billwithdata, current: newbill });
   } catch (error) {
@@ -477,7 +482,6 @@ export const SetBill = async (req, res) => {
 };
 export const FinishBill = async (req, res) => {
   const { billName, type, totalBfDiscount, totalPay, cash, change } = req.body;
-  console.log(billName, type, totalBfDiscount, totalPay, cash, change);
   try {
     const updatebill = await Bill.updateOne(
       { name: billName },
@@ -498,15 +502,20 @@ export const FinishBill = async (req, res) => {
         );
         await Bill.updateOne({ name: billName }, { IsOnline: true });
         const Billw = await Bill.findOne({ name: billName });
+        const pos = await Pos.findOne({ status: "open" });
+        const posBill = pos.bills ? [...pos.bills, Billw.name] : [Billw.name];
+        await Pos.updateOne({ _id: pos._id }, { bills: posBill });
         res.json(Billw);
       } catch (error) {
         const Billw = await Bill.findOne({ name: billName });
-        console.log(Billw);
+        const pos = await Pos.findOne({ status: "open" });
+        const posBill = pos.bills ? [...pos.bills, Billw.name] : [Billw.name];
+        await Pos.updateOne({ _id: pos._id }, { bills: posBill });
+
         res.json(Billw);
       }
     }
   } catch (error) {
-    console.log(error.message);
     res.json(error.message);
   }
 };

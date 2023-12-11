@@ -7,6 +7,7 @@ const posSchema = new Schema({
   status: { type: String, enum: ["open", "closed"], required: true },
   cashin: { type: Array },
   cashout: { type: Array },
+  bills: { type: Array },
 });
 
 const Pos = model("Pos", posSchema);
