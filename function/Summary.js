@@ -30,8 +30,9 @@ export default async function Summary(cashInDrawer) {
       cashin.map((cash) => +cash.cash).reduce((a, b) => a + b, 0) -
       cashout.map((cash) => +cash.cash).reduce((a, b) => a + b, 0) +
       bills
-        .filter((bill) => bill.payment === "credit")
+        .filter((bill) => bill.payment === "cash")
         .reduce((a, b) => a + b.totalPay, 0);
+
     const returndata = {
       shopName: appSetting.storeName,
       date: moment(data.dateOpen).format("DD/MM/YYYY"),
