@@ -2,6 +2,8 @@ import Product from "../models/product.js";
 import Bill from "../models/bill.js";
 import { createBill } from "../function/createBill.js";
 import Pos from "../models/pos.js";
+import moment from "moment";
+
 export const ListProduct = async (req, res) => {
   const { search } = req.query;
   try {
@@ -362,6 +364,48 @@ export const GetBillList = async (req, res) => {
     res.json(error.message);
   }
 };
+export const GetFinishBillList = async (req, res) => {
+  try {
+    const findBill = await Bill.find({
+      active: "purchase",
+    })
+      .limit(30)
+      .sort({ date: -1 });
+    const findBillwithdata = findBill.map(async (bill) => {
+      const products = bill.products.map(async (product) => {
+        const productdata = await Product.findOne({ _id: product.barcode });
+        return {
+          ...productdata._doc,
+          barcode: product.barcode,
+          qty: product.qty,
+        };
+      });
+      const productwithdata = await Promise.all(products);
+      return {
+        ...bill._doc,
+        products: productwithdata,
+      };
+    });
+    const billwithdata = await Promise.all(findBillwithdata);
+
+    const ConvertBill = billwithdata.map((item) => {
+      const productQty = item.products
+        .map((product) => product.qty)
+        .concat(item.customProducts.map((product) => product.qty))
+        .reduce((a, b) => a + b, 0);
+      return {
+        ...item,
+        convertTime: moment(item.date).format("DD/MM/YYYY HH:mm"),
+        customer: item.customer ? item.customer : "ลูกค้าหน้าร้าน",
+        ProductCount: productQty,
+      };
+    });
+
+    res.json(ConvertBill);
+  } catch (error) {
+    res.json(error.message);
+  }
+};
 export const DeleteBill = async (req, res) => {
   const { id } = req.params;
   try {
@@ -518,4 +562,16 @@ export const FinishBill = async (req, res) => {
   } catch (error) {
     res.json(error.message);
   }
+};
+
+export const PrintBill = async (req, res) => {};
+export const GetBill = async (req, res) => {};
+export const GetFinishBill = async (req, res) => {
+  try {
+    const findBill = await Bill.find({
+      active: "purchase",
+    }).limit(30);
+
+    res.json(findBill);
+  } catch (error) {}
 };

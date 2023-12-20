@@ -14,6 +14,7 @@ import {
   AddCustomProduct,
   DeleteCustomProduct,
   FinishBill,
+  GetFinishBillList,
 } from "../controllers/Product.js";
 const router = express.Router();
 
@@ -24,6 +25,9 @@ router.post("/AddQty", AddQty);
 router.post("/DecreseQty", DecreseQty);
 router.post("/DeleteProduct", DeleteProduct);
 router.get("/GetBillList", GetBillList);
+router.get("/GetFinishBillList", GetFinishBillList);
+router.get("/GetBill/:id", GetBillList);
+router.get("/PrintBill/:id", GetBillList);
 router.delete("/DeleteBill/:id", DeleteBill);
 router.get("/CreateBill", CreateBill);
 router.post("/SetDiscount", SetDiscount);
