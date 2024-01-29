@@ -3,6 +3,8 @@ import Bill from "../models/bill.js";
 import { createBill } from "../function/createBill.js";
 import Pos from "../models/pos.js";
 import moment from "moment";
+import axios from "axios";
+import AppSetting from "../models/appsetting.js";
 
 export const ListProduct = async (req, res) => {
   const { search } = req.query;
@@ -540,22 +542,24 @@ export const FinishBill = async (req, res) => {
     );
     if (updatebill) {
       try {
-        const { data } = await axios.post(
-          `${process.env.URL}/Bill`,
-          updatebill
-        );
-        await Bill.updateOne({ name: billName }, { IsOnline: true });
+        const StoreName = await AppSetting.findOne();
         const Billw = await Bill.findOne({ name: billName });
+        const { data } = await axios.post(`${process.env.URL}/saleBill`, {
+          ...Billw._doc,
+          storeName: StoreName.storeName,
+        });
+        console.log(data);
+        await Bill.updateOne({ name: billName }, { IsOnline: true });
         const pos = await Pos.findOne({ status: "open" });
         const posBill = pos.bills ? [...pos.bills, Billw.name] : [Billw.name];
         await Pos.updateOne({ _id: pos._id }, { bills: posBill });
         res.json(Billw);
       } catch (error) {
+        console.log(error);
         const Billw = await Bill.findOne({ name: billName });
         const pos = await Pos.findOne({ status: "open" });
         const posBill = pos.bills ? [...pos.bills, Billw.name] : [Billw.name];
         await Pos.updateOne({ _id: pos._id }, { bills: posBill });
-
         res.json(Billw);
       }
     }

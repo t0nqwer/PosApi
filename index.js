@@ -10,6 +10,7 @@ import ProductRoutes from "./routes/productRoutes.js";
 import ReportRoutes from "./routes/reportRoutes.js";
 import "./socket.io/client.js";
 import Summary from "./function/Summary.js";
+import "./function/BillOnline.js";
 dotenv.config();
 
 const app = express();
