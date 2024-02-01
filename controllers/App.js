@@ -149,3 +149,13 @@ export const setCashDrawer = async (req, res) => {
     res.status(200).json(data);
   } catch (error) {}
 };
+
+export const getStore = async (req, res) => {
+  try {
+    const StoreName = await AppSettings.findOne();
+    const data = await Store.findOne({ name: StoreName.storeName });
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(400).json(error.message);
+  }
+};

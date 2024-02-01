@@ -10,6 +10,7 @@ import {
   setCashDrawer,
   getSummary,
   closeShop,
+  getStore,
 } from "../controllers/App.js";
 const router = express.Router();
 router.get("/StartApp", StartApp);
@@ -22,5 +23,6 @@ router.post("/SetCashDrawer", setCashDrawer);
 router.post("/OpenStore", openShop);
 router.post("/cashIn", cashIn);
 router.post("/cashOut", cashOut);
+router.get("/store", getStore);
 
 export default router;
