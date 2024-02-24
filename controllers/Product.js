@@ -538,6 +538,7 @@ export const FinishBill = async (req, res) => {
         totalPay,
         cash,
         change,
+        IsBillFinish: true,
       }
     );
     if (updatebill) {
@@ -548,7 +549,6 @@ export const FinishBill = async (req, res) => {
           ...Billw._doc,
           storeName: StoreName.storeName,
         });
-        console.log(data);
         await Bill.updateOne({ name: billName }, { IsOnline: true });
         const pos = await Pos.findOne({ status: "open" });
         const posBill = pos.bills ? [...pos.bills, Billw.name] : [Billw.name];
