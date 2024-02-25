@@ -3,6 +3,7 @@ import Store from "../models/store.js";
 import Pos from "../models/pos.js";
 import axios from "axios";
 import Summary from "../function/Summary.js";
+import Bill from "../models/bill.js";
 export const StartApp = async (req, res) => {
   try {
     const app = await AppSettings.findOne();
@@ -155,6 +156,15 @@ export const getStore = async (req, res) => {
     const StoreName = await AppSettings.findOne();
     const data = await Store.findOne({ name: StoreName.storeName });
     res.status(200).json(data);
+  } catch (error) {
+    res.status(400).json(error.message);
+  }
+};
+
+export const setBillOnlineFalse = async (req, res) => {
+  try {
+    await Bill.updateMany({ IsOnline: true }, { IsOnline: false });
+    res.status(200).json("success");
   } catch (error) {
     res.status(400).json(error.message);
   }

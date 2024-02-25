@@ -11,6 +11,7 @@ import {
   getSummary,
   closeShop,
   getStore,
+  setBillOnlineFalse,
 } from "../controllers/App.js";
 const router = express.Router();
 router.get("/StartApp", StartApp);
@@ -24,5 +25,6 @@ router.post("/OpenStore", openShop);
 router.post("/cashIn", cashIn);
 router.post("/cashOut", cashOut);
 router.get("/store", getStore);
+router.get("/setBillOnlineFalse", setBillOnlineFalse);
 
 export default router;

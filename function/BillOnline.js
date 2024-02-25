@@ -13,21 +13,14 @@ const BillOnline = async () => {
   for (let i = 0; i < BillData.length; i++) {
     try {
       const bill = BillData[i];
-      // console.log({
-      //   ...bill._doc,
-      //   storeName: appSetting.storeName,
-      // });
       const { data } = await axios.post(`${process.env.URL}/saleBill`, {
         ...bill._doc,
         storeName: appSetting.storeName,
       });
-
       if (data) {
         await Bill.findByIdAndUpdate(bill._id, { IsOnline: true });
       }
     } catch (error) {
-      // console.log(error);
-      // console.log(error.message);
       break;
     }
   }
